@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MiniC — Lex/Yacc компілятор C</title>
+<link rel="stylesheet" href="vendor/codemirror/codemirror.min.css">
+<link rel="stylesheet" href="vendor/codemirror/material-darker.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">C</span>
+    <div>
+      <div class="title">MiniC</div>
+      <div class="subtitle">PLY (Lex/Yacc) · LALR(1) · C → AST → Python / JavaScript / TAC</div>
+    </div>
+  </div>
+  <div class="controls">
+    <select id="examples" title="Приклади програм"></select>
+    <label class="chk" title="Записувати протокол shift/reduce"><input type="checkbox" id="opt-trace" checked> trace</label>
+    <button id="btn-compile" class="primary" title="Ctrl+Enter">▶ Компілювати і запустити</button>
+  </div>
+  <div class="pills" id="pills"></div>
+</header>
+
+<main class="layout">
+  <section class="left">
+    <div class="panel-title">Вихідний код (C)<span id="cursor-pos" class="muted"></span></div>
+    <div class="editor-wrap"><textarea id="code"></textarea></div>
+    <div class="panel-title">Діагностика <span id="diag-count" class="muted"></span></div>
+    <div id="diagnostics" class="diagnostics"></div>
+  </section>
+
+  <section class="right">
+    <nav class="tabs" id="tabs">
+      <button data-tab="ast" class="active">🌳 AST</button>
+      <button data-tab="output">▶ Виконання</button>
+      <button data-tab="python">Python</button>
+      <button data-tab="js">JavaScript</button>
+      <button data-tab="tac">TAC</button>
+      <button data-tab="tokens">Токени</button>
+      <button data-tab="symbols">Символи</button>
+      <button data-tab="trace">LALR-протокол</button>
+      <button data-tab="grammar">Граматика</button>
+    </nav>
+
+    <!-- ===================== AST ===================== -->
+    <div class="tab-pane active" id="pane-ast">
+      <div class="toolbar">
+        <button id="ast-fit" title="Вмістити у вікно">⤢ Вмістити</button>
+        <button id="ast-expand">Розгорнути все</button>
+        <button id="ast-collapse">Згорнути до рівня 3</button>
+        <button id="ast-orient" title="Змінити орієнтацію">↕ / ↔</button>
+        <span class="sep"></span>
+        <button id="anim-play" title="Анімація побудови AST у порядку згорток LALR">▶ Побудова знизу-вгору</button>
+        <input type="range" id="anim-slider" min="0" max="0" value="0">
+        <span id="anim-caption" class="muted small"></span>
+        <span class="sep"></span>
+        <button id="ast-svg" title="Зберегти SVG">⬇ SVG</button>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div id="ast-view" class="ast-view"><div class="placeholder">Натисніть «Компілювати», щоб побудувати дерево</div></div>
+      <div id="tooltip" class="tooltip"></div>
+    </div>
+
+    <!-- ===================== OUTPUT ===================== -->
+    <div class="tab-pane" id="pane-output">
+      <div class="outputs">
+        <div class="out-card">
+          <div class="out-head">Інтерпретатор AST <span id="badge-interp" class="badge"></span></div>
+          <pre id="out-interp" class="out"></pre>
+        </div>
+        <div class="out-card">
+          <div class="out-head">Згенерований Python (виконано на сервері) <span id="badge-py" class="badge"></span></div>
+          <pre id="out-py" class="out"></pre>
+        </div>
+        <div class="out-card">
+          <div class="out-head">Згенерований JavaScript (виконано у браузері) <span id="badge-js" class="badge"></span></div>
+          <pre id="out-js" class="out"></pre>
+        </div>
+      </div>
+      <div id="run-stats" class="muted small stats-line"></div>
+    </div>
+
+    <div class="tab-pane code-pane" id="pane-python">
+      <div class="toolbar"><button data-copy="python">Копіювати</button><button data-download="python">⬇ program.py</button><span class="muted small" id="note-python"></span></div>
+      <div class="viewer" id="view-python"></div>
+    </div>
+    <div class="tab-pane code-pane" id="pane-js">
+      <div class="toolbar"><button data-copy="js">Копіювати</button><button data-download="js">⬇ program.js</button><span class="muted small" id="note-js"></span></div>
+      <div class="viewer" id="view-js"></div>
+    </div>
+    <div class="tab-pane code-pane" id="pane-tac">
+      <div class="toolbar"><button data-copy="tac">Копіювати</button><button data-download="tac">⬇ program.tac</button><span class="muted small">Триадресний код: t* – тимчасові, L* – мітки, зміщення масивів у байтах</span></div>
+      <div class="viewer" id="view-tac"></div>
+    </div>
+
+    <div class="tab-pane scroll" id="pane-tokens">
+      <table class="grid" id="tokens-table"></table>
+    </div>
+    <div class="tab-pane scroll" id="pane-symbols">
+      <table class="grid" id="symbols-table"></table>
+    </div>
+    <div class="tab-pane scroll" id="pane-trace">
+      <div class="toolbar">
+        <input id="trace-filter" placeholder="фільтр (напр. reduce, IF, state 42)">
+        <label class="chk"><input type="checkbox" id="trace-reduce-only"> лише згортки</label>
+        <span class="muted small" id="trace-info"></span>
+      </div>
+      <table class="grid trace" id="trace-table"></table>
+    </div>
+    <div class="tab-pane scroll" id="pane-grammar">
+      <div id="grammar-stats" class="cards"></div>
+      <div class="toolbar">
+        <input id="grammar-filter" placeholder="пошук продукцій (напр. selection_statement)">
+        <a href="/api/parser_out" target="_blank" class="btn-link">Відкрити parser.out (усі стани LALR)</a>
+      </div>
+      <ol id="grammar-list" class="productions"></ol>
+    </div>
+  </section>
+</main>
+
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/codemirror/codemirror.min.js"></script>
+<script src="vendor/codemirror/clike.min.js"></script>
+<script src="vendor/codemirror/python.min.js"></script>
+<script src="vendor/codemirror/javascript.min.js"></script>
+<script src="vendor/codemirror/matchbrackets.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

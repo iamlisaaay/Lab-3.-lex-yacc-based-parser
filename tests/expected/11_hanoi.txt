@@ -1,0 +1,8 @@
+move disk 3: A -> C
+move disk 4: A -> B
+move disk 3: C -> B
+move disk 5: A -> C
+move disk 3: B -> A
+move disk 4: B -> C
+move disk 3: A -> C
+total moves: 31 (2^5 - 1 = 31)

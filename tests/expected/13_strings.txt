@@ -1,0 +1,5 @@
+word = compiler, length = 8, strlen = 8
+reversed = relipmoc
+"level" palindrome? 1; "relipmoc" palindrome? 0
+LEVEL
+abcde

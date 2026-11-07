@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+tools/conflicts_out/
+.claude/
+parsetab.py
+lextab.py
+test 1/
+docs/

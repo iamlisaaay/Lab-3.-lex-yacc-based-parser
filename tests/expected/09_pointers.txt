@@ -1,0 +1,6 @@
+after swap: x = 10, y = 5
+arr = 1 20 30 4 5
+sum = 60
+q - p = 3, *q = 5
+INT_MAX + 1 = -2147483648
+(unsigned)0 - 1 = 4294967295
