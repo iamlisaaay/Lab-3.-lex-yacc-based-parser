@@ -146,7 +146,7 @@ MiniC-LexYacc/
 ├── examples/                 15 програм на C (у т.ч. з навмисними помилками)
 ├── tests/                    unittest + еталонні виводи
 ├── tools/                    crosscheck.py, conflicts_demo.py
-└── docs/                     THEORY.md, DEFENSE_QA.md, VIDEO_SCRIPT.md, GRAMMAR.md
+
 ```
 
 ## Обмеження трансляції
