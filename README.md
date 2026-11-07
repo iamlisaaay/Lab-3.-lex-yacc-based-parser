@@ -22,15 +22,15 @@ flowchart LR
 
 ## Відповідність критеріям оцінювання
 
-| Критерій | Бали | Що реалізовано |
+| Критерій | Що реалізовано |
 |---|---|---|
-| Коректний робочий проєкт | 2 | CLI + веб-інтерфейс, 15 прикладів, 28 автотестів, крос-перевірка трьох виконавців |
-| Відповіді на питання по коду | 2 | [`docs/DEFENSE_QA.md`](docs/DEFENSE_QA.md) — де що лежить і як працює |
-| **Граматика мови C** | +2 | [`minic/parser.py`](minic/parser.py): 169 продукцій, 52 нетермінали, 276 станів LALR, **0 конфліктів**; декларатори C (`int *p`, `int a[3][4]`, прототипи), усі оператори C, 15 рівнів пріоритету виразів |
-| Теорія: LALR, yacc, конфлікти | +2 | [`docs/THEORY.md`](docs/THEORY.md) + живі демонстрації: [`tools/conflicts_demo.py`](tools/conflicts_demo.py), вкладки «LALR-протокол» і «Граматика» у веб-інтерфейсі |
-| Семантика / обчислення AST | +2 | [`minic/semantic.py`](minic/semantic.py) (типи, області видимості, 20+ видів помилок) + [`minic/interpreter.py`](minic/interpreter.py) (виконання з вказівниками, переповненням int, контролем меж масивів) |
-| Генерація коду на цільовій мові | +2 | Трансляція у **Python** ([`codegen_python.py`](minic/codegen_python.py)) і **JavaScript** ([`codegen_js.py`](minic/codegen_js.py)) + проміжний **триадресний код** ([`codegen_tac.py`](minic/codegen_tac.py)) |
-| Візуалізація AST у браузері (JS-графіка) | +2 +2 | [`web/app.js`](web/app.js): **d3.js** — інтерактивне дерево (згортання, масштаб, підказки, зв'язок з рядками коду, експорт SVG) і **анімація побудови AST знизу-вгору в порядку згорток LALR** |
+| Коректний робочий проєкт | CLI + веб-інтерфейс, 15 прикладів, 28 автотестів, крос-перевірка трьох виконавців |
+| Відповіді на питання по коду | [`docs/DEFENSE_QA.md`](docs/DEFENSE_QA.md) — де що лежить і як працює |
+| **Граматика мови C** | [`minic/parser.py`](minic/parser.py): 169 продукцій, 52 нетермінали, 276 станів LALR, **0 конфліктів**; декларатори C (`int *p`, `int a[3][4]`, прототипи), усі оператори C, 15 рівнів пріоритету виразів |
+| Теорія: LALR, yacc, конфлікти | [`docs/THEORY.md`](docs/THEORY.md) + живі демонстрації: [`tools/conflicts_demo.py`](tools/conflicts_demo.py), вкладки «LALR-протокол» і «Граматика» у веб-інтерфейсі |
+| Семантика / обчислення AST | [`minic/semantic.py`](minic/semantic.py) (типи, області видимості, 20+ видів помилок) + [`minic/interpreter.py`](minic/interpreter.py) (виконання з вказівниками, переповненням int, контролем меж масивів) |
+| Генерація коду на цільовій мові | Трансляція у **Python** ([`codegen_python.py`](minic/codegen_python.py)) і **JavaScript** ([`codegen_js.py`](minic/codegen_js.py)) + проміжний **триадресний код** ([`codegen_tac.py`](minic/codegen_tac.py)) |
+| Візуалізація AST у браузері (JS-графіка) |[`web/app.js`](web/app.js): **d3.js** — інтерактивне дерево (згортання, масштаб, підказки, зв'язок з рядками коду, експорт SVG) і **анімація побудови AST знизу-вгору в порядку згорток LALR** |
 
 ## Швидкий старт
 
@@ -122,32 +122,6 @@ python tools/conflicts_demo.py
 Свідомо не реалізовано: `struct/union/enum`, `typedef` (вимагає «lexer hack» — див. теорію),
 `goto`, функціональні макроси, вказівники на функції.
 
-## Структура проєкту
-
-```
-MiniC-LexYacc/
-├── minic.py                  CLI (точка входу)
-├── minic/
-│   ├── lexer.py              лексер (PLY.lex): токени, ключові слова, коментарі
-│   ├── parser.py             граматика C (PLY.yacc), побудова AST, протокол розбору
-│   ├── astnodes.py           класи вузлів AST, серіалізація у JSON для d3
-│   ├── ctype.py              представлення типів C
-│   ├── preprocess.py         #define / #include
-│   ├── semantic.py           таблиця символів, перевірка типів, контекстні перевірки
-│   ├── interpreter.py        інтерпретатор AST (обчислення)
-│   ├── codegen_python.py     трансляція C → Python
-│   ├── codegen_js.py         трансляція C → JavaScript
-│   ├── codegen_tac.py        трансляція C → триадресний код
-│   ├── runtime.py            printf та хелпери для згенерованого коду
-│   ├── compiler.py           конвеєр фаз
-│   ├── server.py             HTTP-сервер для веб-інтерфейсу (stdlib)
-│   └── generated/parser.out  опис усіх 276 станів LALR-автомата (аналог y.output)
-├── web/                      index.html, app.js (d3.js), style.css, vendor/ (d3, CodeMirror)
-├── examples/                 15 програм на C (у т.ч. з навмисними помилками)
-├── tests/                    unittest + еталонні виводи
-├── tools/                    crosscheck.py, conflicts_demo.py
-
-```
 
 ## Обмеження трансляції
 
